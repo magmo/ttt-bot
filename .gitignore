@@ -1,0 +1,14 @@
+#test
+.pytest_cache/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# misc
+.DS_Store
+.vscode/launch.json
+
+.env
+creds.json
+creds_test.json

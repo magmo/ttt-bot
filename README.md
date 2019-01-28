@@ -1,4 +1,4 @@
-# Rock-paper-scissor autoplayer
+# TicTacToe autoplayer
 
 ## Deployment
 * Deployment to the development environment is done via the `gcloud` command: `gcloud app deploy` from the root directory.

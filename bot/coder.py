@@ -18,11 +18,8 @@ STATE_BYTES = F_WIDTH + F_WIDTH + F_WIDTH + F_WIDTH * N_PLAYERS
     ==============================
     [  0 -  31] enum positionType
     [ 32 -  63] uint256 stake
-    [ 64 -  95] bytes32 preCommit
-    [ 96 - 127] enum bPlay
-    [128 - 159] enum aPlay
-    [160 - 191] bytes32 salt
-    [192 - 223] uint256 roundNum
+    [ 64 -  95] uint16 noughts
+    [ 96 - 127] uint16 crosses
 '''
 GAME_OFFSET = STATE_OFFSET + STATE_BYTES
 
@@ -188,20 +185,12 @@ def get_game_stake(h_message):
     return _get_game_int_attribute(h_message, 1)
 
 
-def get_game_precommit(h_message):
-    return _get_game_byte_attribute(h_message, 2)
+def get_game_noughts(h_message):
+    return _get_game_int_attribute(h_message, 2)
 
 
-def get_game_bplay(h_message):
+def get_game_crosses(h_message):
     return _get_game_int_attribute(h_message, 3)
-
-
-def get_game_aplay(h_message):
-    return _get_game_int_attribute(h_message, 4)
-
-
-def get_game_salt(h_message):
-    return _get_game_byte_attribute(h_message, 5)
 
 
 def update_game_position(h_message, game_position):
@@ -225,5 +214,9 @@ def conclude(h_message):
     return h_message[: CHARS_PER_BYTE * (GAME_OFFSET)]
 
 
-def update_move(h_message, move):
-    return _update_field(h_message, GAME_OFFSET, 3, int_to_field(move))
+def update_noughts(h_message, noughts):
+    return _update_field(h_message, GAME_OFFSET, 2, int_to_field(noughts))
+
+
+def update_crosses(h_message, crosses):
+    return _update_field(h_message, GAME_OFFSET, 3, int_to_field(crosses))

@@ -8,12 +8,16 @@ from bot.util import hex_to_str, set_response_message, str_to_hex
 BP = Blueprint('channel_message', __name__)
 
 # Error definitions
+
+
 class PlayerError(Exception):
     pass
+
 
 class PlayerAError(PlayerError):
     def __str__(self):
         return 'The bot only plays as player B'
+
 
 class PlayerGamePositionNotImplementedError(PlayerError):
     def __init__(self, game_position):
@@ -23,6 +27,7 @@ class PlayerGamePositionNotImplementedError(PlayerError):
     def __str__(self):
         return f'The {self.game_position} is not implemented'
 
+
 class PlayerChannelStateNotImplementedError(PlayerError):
     def __init__(self, channel_state):
         super().__init__()
@@ -30,6 +35,7 @@ class PlayerChannelStateNotImplementedError(PlayerError):
 
     def __str__(self):
         return f'The {self.channel_state} is not implemented'
+
 
 def undefined_game_position(game_position):
     raise PlayerGamePositionNotImplementedError(game_position)
@@ -41,17 +47,16 @@ def playera_pays_playerb(hex_message):
     hex_message = coder.increment_state_balance(hex_message, 0, -1 * stake)
     return coder.increment_state_balance(hex_message, 1, stake)
 
-def play_move(hex_message):
-    bot_addr = g.bot_addr
-    last_opponent_move = wallet.get_last_opponent_move(hex_message, bot_addr)
-    last_bot_move = wallet.get_last_bot_move(hex_message, bot_addr)
-    move = strategy.next_move(last_bot_move, last_opponent_move, bot_addr, hex_message=hex_message)
-    wallet.set_last_bot_move(hex_message, move, bot_addr)
-    return coder.update_move(hex_message, move)
 
-def from_game_propose(_hex_message):
-    track_ge_event(g.bot_addr, "from_game_propose")
-    return [playera_pays_playerb, play_move, coder.increment_game_position]
+def play_nought_move(hex_message):
+    move = strategy.next_move(hex_message)
+    noughts = coder.get_game_noughts(hex_message) + move
+    return coder.update_noughts(hex_message, noughts)
+
+
+def from_xplay(_hex_message):
+    return [playera_pays_playerb, play_nought_move, coder.increment_game_position]
+
 
 def from_game_reveal(hex_message):
     track_ge_event(g.bot_addr, "from_game_reveal")
@@ -61,11 +66,14 @@ def from_game_reveal(hex_message):
         return [coder.conclude]
     return [coder.new_game]
 
+
 GAME_STATES = (
     lambda x: undefined_game_position('FromGameResting'),
-    from_game_propose,
-    lambda x: undefined_game_position('FromGameAccept'),
-    from_game_reveal
+    from_xplay,
+    lambda x: undefined_game_position('FromXPlay'),
+    lambda x: undefined_game_position('FromOPlay'),
+    lambda x: undefined_game_position('FromVictory'),
+    lambda x: undefined_game_position('FromDraw'),
 )
 
 
@@ -81,18 +89,22 @@ def prefund_setup(hex_message):
 
     return transformations
 
+
 def postfund_setup(hex_message):
     track_ge_event(g.bot_addr, "postfund")
     return prefund_setup(hex_message)
+
 
 def game(hex_message):
     game_position = coder.get_game_position(hex_message)
     return GAME_STATES[game_position](hex_message)
 
+
 def conclude(hex_message):
     track_ge_event(g.bot_addr, "conclude")
     wallet.clear_wallet_channel(hex_message, g.bot_addr)
     return []
+
 
 CHANNEL_STATES = [
     prefund_setup,
@@ -139,6 +151,7 @@ def game_engine_message(message, bot_addr):
     fb_message.message_opponent(new_state, bot_addr)
     return set_response_message(str_to_hex(new_state), d_response)
 
+
 @BP.route('/channel_message', methods=['POST'])
 def channel_message():
     request_json = request.get_json()
@@ -160,10 +173,12 @@ def channel_message():
 
     return jsonify(d_response)
 
+
 @BP.route('/clear_wallet_channels', methods=['POST'])
 def clear_wallet():
     wallet.clear_wallet_channels(g.bot_addr)
     return jsonify({})
+
 
 @BP.route('/create_challenge', methods=['POST'])
 def create_challenge():

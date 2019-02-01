@@ -7,7 +7,7 @@ __pycache__/
 
 # misc
 .DS_Store
-.vscode/launch.json
+.vscode/
 
 .env
 creds.json

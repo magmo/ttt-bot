@@ -10,11 +10,14 @@ from bot import challenge
 from bot.config import get_project
 from bot.util import hex_to_str
 
+
 def get_fb_project_name(app):
     if app.config['TESTING']:
-        environ["GOOGLE_APPLICATION_CREDENTIALS"] = path.join(getcwd(), 'creds_test.json')
-        return 'rock-paper-scissors-test'
+        environ["GOOGLE_APPLICATION_CREDENTIALS"] = path.join(
+            getcwd(), 'creds_test.json')
+        return 'tic-tac-toe-test123'
     return get_project()
+
 
 def create_app(test_config=None):
     app = Flask(__name__)
@@ -22,6 +25,7 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     app.logger.setLevel(logging.INFO)
+
     @app.before_request
     def _log_request_info():
         app.logger.debug(f'Headers: {request.headers}')
@@ -40,7 +44,6 @@ def create_app(test_config=None):
             'databaseURL': f'https://{project_name}.firebaseio.com',
             'projectId': project_name
         })
-
 
     from bot import player
     app.register_blueprint(player.BP)

@@ -13,11 +13,11 @@ FIELDS = [
     'balance b',
     'game position',
     'stake',
-    'game precommit',
-    'bPlay',
-    'aPlay',
-    'salt'
+    'noughts',
+    'crosses',
 ]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("message")
@@ -39,6 +39,7 @@ def main():
             out += ' -- ' + FIELDS[counter]
         print(out)
         counter += 1
+
 
 if __name__ == '__main__':
     main()

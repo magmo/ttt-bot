@@ -1,14 +1,20 @@
 from collections import OrderedDict
 from os import environ
 
-PROJ_DEV = 'rock-paper-scissors-dev'
+PROJ_DEV = 'tic-tac-toe-dev-3a21f'
+
+
 def get_project():
     return environ.get('GOOGLE_CLOUD_PROJECT', PROJ_DEV)
 
+
 ENV_PROD = 'env_prod'
 ENV_DEV = 'env_dev'
+
+
 def get_env():
     return ENV_DEV if get_project() == PROJ_DEV else ENV_PROD
+
 
 if get_env() == ENV_DEV:
     from bot.config_dev import ADDRESSES, NAMES, WALLET_UID, PKS
@@ -32,6 +38,7 @@ K_STAKE = 'bot_stake'
 
 _BOTS = OrderedDict()
 
+
 def create_bots():
     for i_bot in range(0, NUM_BOTS):
         bot = {}
@@ -42,6 +49,7 @@ def create_bots():
         bot[K_STAKE] = FINNEY
         _BOTS[ADDRESSES[i_bot]] = bot
 
+
 def get_bot(addr=None, index=0):
     if not _BOTS:
         create_bots()
@@ -49,6 +57,7 @@ def get_bot(addr=None, index=0):
     if addr:
         return _BOTS[addr]
     return list(_BOTS.values())[index]
+
 
 def get_bot_addr(index=0):
     return get_bot(index=index)[K_ADDRESS]

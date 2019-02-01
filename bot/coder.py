@@ -34,7 +34,7 @@ class NumPlayersError(CoderError):
         self.num_players = num_players
 
     def __str__(self):
-        return f'Rock-paper-scissors requires exactly ' + \
+        return f'Tic Tac Toe requires exactly ' + \
             '{N_PLAYERS} players. {self.num_players} provided.'
 
 

@@ -1,4 +1,4 @@
-from random import randint
+import random
 from bot.coder import get_game_noughts, get_game_crosses
 
 VALID_MOVES = [
@@ -13,6 +13,6 @@ def next_move(hex_message):
     crosses = get_game_crosses(hex_message)
 
     while True:
-        move = VALID_MOVES[randint(0, 9)]
+        move = VALID_MOVES[random.randint(0, 8)]
         if noughts | move != noughts and crosses | move != crosses:
             return move

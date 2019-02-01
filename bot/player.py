@@ -2,7 +2,6 @@ from flask import Blueprint, current_app, jsonify, request, g
 
 
 from bot import challenge, coder, fb_message, strategy, wallet
-from bot.tracking import track_ge_event, track_wallet_event
 from bot.util import hex_to_str, set_response_message, str_to_hex
 
 BP = Blueprint('channel_message', __name__)
@@ -44,8 +43,8 @@ def undefined_game_position(game_position):
 # Game position transitions
 def playera_pays_playerb(hex_message):
     stake = coder.get_game_stake(hex_message)
-    hex_message = coder.increment_state_balance(hex_message, 0, -1 * stake)
-    return coder.increment_state_balance(hex_message, 1, stake)
+    hex_message = coder.increment_state_balance(hex_message, 0, -2 * stake)
+    return coder.increment_state_balance(hex_message, 1, 2 * stake)
 
 
 def play_nought_move(hex_message):
@@ -59,8 +58,6 @@ def from_xplay(_hex_message):
 
 
 def from_game_reveal(hex_message):
-    track_ge_event(g.bot_addr, "from_game_reveal")
-    wallet.set_last_opponent_move(hex_message, g.bot_addr)
     if not coder.get_state_balance(hex_message, 0) or not coder.get_state_balance(hex_message, 1):
         wallet.clear_wallet_channel(hex_message, g.bot_addr)
         return [coder.conclude]
@@ -79,7 +76,6 @@ GAME_STATES = (
 
 # Channel state transitions
 def prefund_setup(hex_message):
-    track_ge_event(g.bot_addr, "prefund")
     state_count = coder.get_state_count(hex_message)
     transformations = []
     if state_count:
@@ -91,7 +87,6 @@ def prefund_setup(hex_message):
 
 
 def postfund_setup(hex_message):
-    track_ge_event(g.bot_addr, "postfund")
     return prefund_setup(hex_message)
 
 
@@ -101,7 +96,6 @@ def game(hex_message):
 
 
 def conclude(hex_message):
-    track_ge_event(g.bot_addr, "conclude")
     wallet.clear_wallet_channel(hex_message, g.bot_addr)
     return []
 
@@ -167,7 +161,6 @@ def channel_message():
         d_response = game_engine_message(message, g.bot_addr)
     # A message of length 64 or shorter is an adjudicator address
     else:
-        track_wallet_event(g.bot_addr, "from_game_propose")
         d_response = wallet.fund_adjudicator(message, g.bot_addr)
         current_app.logger.info(d_response.get('message'))
 

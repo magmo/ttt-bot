@@ -41,10 +41,19 @@ def undefined_game_position(game_position):
 
 
 # Game position transitions
-def playera_pays_playerb(hex_message):
+def _transfer_stake(hex_message, multiplier=1):
     stake = coder.get_game_stake(hex_message)
-    hex_message = coder.increment_state_balance(hex_message, 0, -2 * stake)
-    return coder.increment_state_balance(hex_message, 1, 2 * stake)
+    hex_message = coder.increment_state_balance(
+        hex_message, 0, -1 * multiplier * stake)
+    return coder.increment_state_balance(hex_message, 1, multiplier * stake)
+
+
+def stake_move(hex_message):
+    return _transfer_stake(hex_message, 2)
+
+
+def stake_first_move(hex_message):
+    return _transfer_stake(hex_message)
 
 
 def play_nought_move(hex_message):
@@ -53,11 +62,27 @@ def play_nought_move(hex_message):
     return coder.update_noughts(hex_message, noughts)
 
 
+def play_cross_move(hex_message):
+    move = strategy.next_move(hex_message)
+    crosses = coder.get_game_crosses(hex_message) + move
+    return coder.update_crosses(hex_message, crosses)
+
+# Need to fix stake
+
+
+def from_resting(_hex_message):
+    return [coder.update_noughts, stake_first_move, play_cross_move, coder.increment_game_position]
+
+
+def from_oplay(_hex_message):
+    return [stake_move, play_cross_move, coder.increment_game_position]
+
+
 def from_xplay(_hex_message):
-    return [playera_pays_playerb, play_nought_move, coder.increment_game_position]
+    return [stake_move, play_nought_move, coder.increment_game_position]
 
 
-def from_game_reveal(hex_message):
+def from_victory(hex_message):
     if not coder.get_state_balance(hex_message, 0) or not coder.get_state_balance(hex_message, 1):
         wallet.clear_wallet_channel(hex_message, g.bot_addr)
         return [coder.conclude]
@@ -65,11 +90,10 @@ def from_game_reveal(hex_message):
 
 
 GAME_STATES = (
-    lambda x: undefined_game_position('FromGameResting'),
+    from_resting,
     from_xplay,
-    lambda x: undefined_game_position('FromXPlay'),
-    lambda x: undefined_game_position('FromOPlay'),
-    lambda x: undefined_game_position('FromVictory'),
+    from_oplay,
+    from_victory,
     lambda x: undefined_game_position('FromDraw'),
 )
 

@@ -186,11 +186,17 @@ def get_game_stake(h_message):
 
 
 def get_game_noughts(h_message):
-    return _get_game_int_attribute(h_message, 2)
+    try:
+        return _get_game_int_attribute(h_message, 2)
+    except ValueError:
+        return 0
 
 
 def get_game_crosses(h_message):
-    return _get_game_int_attribute(h_message, 3)
+    try:
+        return _get_game_int_attribute(h_message, 3)
+    except ValueError:
+        return 0
 
 
 def update_game_position(h_message, game_position):
@@ -214,9 +220,9 @@ def conclude(h_message):
     return h_message[: CHARS_PER_BYTE * (GAME_OFFSET)]
 
 
-def update_noughts(h_message, noughts):
+def update_noughts(h_message, noughts=0):
     return _update_field(h_message, GAME_OFFSET, 2, int_to_field(noughts))
 
 
-def update_crosses(h_message, crosses):
+def update_crosses(h_message, crosses=0):
     return _update_field(h_message, GAME_OFFSET, 3, int_to_field(crosses))

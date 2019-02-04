@@ -71,15 +71,15 @@ def play_cross_move(hex_message):
 
 
 def from_resting(_hex_message):
-    return [coder.update_noughts, stake_first_move, play_cross_move, coder.increment_game_position]
+    return [coder.update_noughts, stake_first_move, play_cross_move, coder.change_game_position]
 
 
 def from_oplay(_hex_message):
-    return [stake_move, play_cross_move, coder.increment_game_position]
+    return [stake_move, play_cross_move, lambda h_message: coder.change_game_position(h_message, -1)]
 
 
 def from_xplay(_hex_message):
-    return [stake_move, play_nought_move, coder.increment_game_position]
+    return [stake_move, play_nought_move, coder.change_game_position]
 
 
 def from_victory(hex_message):

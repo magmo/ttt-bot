@@ -203,9 +203,9 @@ def update_game_position(h_message, game_position):
     return _update_field(h_message, GAME_OFFSET, 0, int_to_field(game_position))
 
 
-def increment_game_position(h_message):
+def change_game_position(h_message, delta=1):
     game_position = get_game_position(h_message)
-    game_position += 1
+    game_position += delta
     return update_game_position(h_message, game_position)
 
 

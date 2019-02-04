@@ -48,11 +48,21 @@ def _transfer_stake(hex_message, multiplier=1):
     return coder.increment_state_balance(hex_message, 1, multiplier * stake)
 
 
-def stake_move(hex_message):
+def check_end_of_game(hex_message):
+    if strategy.check_win(hex_message):
+        hex_message = coder.update_game_position(hex_message, 3)
+        return transfer_double_stake(hex_message)
+    if strategy.check_draw(hex_message):
+        hex_message = coder.update_game_position(hex_message, 4)
+        return transfer_stake(hex_message)
+    return transfer_double_stake(hex_message)
+
+
+def transfer_double_stake(hex_message):
     return _transfer_stake(hex_message, 2)
 
 
-def stake_first_move(hex_message):
+def transfer_stake(hex_message):
     return _transfer_stake(hex_message)
 
 
@@ -67,19 +77,18 @@ def play_cross_move(hex_message):
     crosses = coder.get_game_crosses(hex_message) + move
     return coder.update_crosses(hex_message, crosses)
 
-# Need to fix stake
-
 
 def from_resting(_hex_message):
-    return [coder.update_noughts, stake_first_move, play_cross_move, coder.change_game_position]
+    return [coder.update_noughts, transfer_stake, play_cross_move, coder.change_game_position]
 
 
 def from_oplay(_hex_message):
-    return [stake_move, play_cross_move, lambda h_message: coder.change_game_position(h_message, -1)]
+    return [play_cross_move,
+            lambda h_message: coder.change_game_position(h_message, -1), check_end_of_game]
 
 
 def from_xplay(_hex_message):
-    return [stake_move, play_nought_move, coder.change_game_position]
+    return [play_nought_move, coder.change_game_position, check_end_of_game]
 
 
 def from_victory(hex_message):
@@ -89,12 +98,16 @@ def from_victory(hex_message):
     return [coder.new_game]
 
 
+def from_draw(_hex_message):
+    return [coder.new_game]
+
+
 GAME_STATES = (
     from_resting,
     from_xplay,
     from_oplay,
     from_victory,
-    lambda x: undefined_game_position('FromDraw'),
+    from_draw,
 )
 
 

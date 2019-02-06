@@ -209,8 +209,8 @@ def change_game_position(h_message, delta=1):
     return update_game_position(h_message, game_position)
 
 
-def new_game(h_message):
-    h_message = update_game_position(h_message, 0)
+def play_again_me_first(h_message):
+    h_message = update_game_position(h_message, 4)
     return h_message[: CHARS_PER_BYTE * (GAME_OFFSET + F_WIDTH * 2)]
 
 

@@ -50,10 +50,10 @@ def _transfer_stake(hex_message, multiplier=1):
 
 def check_end_of_game(hex_message):
     if strategy.check_win(hex_message):
-        hex_message = coder.update_game_position(hex_message, 3)
+        hex_message = coder.update_game_position(hex_message, 2)
         return transfer_double_stake(hex_message)
     if strategy.check_draw(hex_message):
-        hex_message = coder.update_game_position(hex_message, 4)
+        hex_message = coder.update_game_position(hex_message, 3)
         return transfer_stake(hex_message)
     return transfer_double_stake(hex_message)
 
@@ -78,10 +78,6 @@ def play_cross_move(hex_message):
     return coder.update_crosses(hex_message, crosses)
 
 
-def from_resting(_hex_message):
-    return [coder.update_noughts, transfer_stake, play_cross_move, coder.change_game_position]
-
-
 def from_oplay(_hex_message):
     return [play_cross_move,
             lambda h_message: coder.change_game_position(h_message, -1), check_end_of_game]
@@ -95,19 +91,29 @@ def from_victory(hex_message):
     if not coder.get_state_balance(hex_message, 0) or not coder.get_state_balance(hex_message, 1):
         wallet.clear_wallet_channel(hex_message, g.bot_addr)
         return [coder.conclude]
-    return [coder.new_game]
+    return [coder.play_again_me_first]
 
 
 def from_draw(_hex_message):
-    return [coder.new_game]
+    return [coder.play_again_me_first]
+
+
+def from_play_again_me_first(_hex_message):
+    return [coder.change_game_position]
+
+
+def from_play_again_me_second(_hex_message):
+    return [coder.update_noughts, transfer_stake, play_cross_move,
+            lambda h_message: coder.update_game_position(h_message, 0)]
 
 
 GAME_STATES = (
-    from_resting,
     from_xplay,
     from_oplay,
     from_victory,
     from_draw,
+    from_play_again_me_first,
+    from_play_again_me_second,
 )
 
 

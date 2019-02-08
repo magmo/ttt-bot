@@ -89,7 +89,6 @@ def from_xplay(_hex_message):
 
 def from_victory(hex_message):
     if not coder.get_state_balance(hex_message, 0) or not coder.get_state_balance(hex_message, 1):
-        wallet.clear_wallet_channel(hex_message, g.bot_addr)
         return [coder.conclude]
     return [coder.play_again_me_first]
 
@@ -140,7 +139,9 @@ def game(hex_message):
 
 def conclude(hex_message):
     wallet.clear_wallet_channel(hex_message, g.bot_addr)
-    return []
+    if coder.get_state_count(hex_message) == 1:
+        return None
+    return [coder.increment_state_count]
 
 
 CHANNEL_STATES = [
@@ -155,6 +156,8 @@ CHANNEL_STATES = [
 def transition_from_state(hex_message):
     channel_state = coder.get_channel_state(hex_message)
     message_transformations = CHANNEL_STATES[channel_state](hex_message)
+    if message_transformations is None:
+        return ""
 
     response_message = hex_message
     message_transformations += [coder.increment_state_turn_num]

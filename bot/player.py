@@ -1,8 +1,10 @@
+import random
 from flask import Blueprint, current_app, jsonify, request, g
 
 
 from bot import challenge, coder, fb_message, strategy, wallet
 from bot.util import hex_to_str, set_response_message, str_to_hex
+
 
 BP = Blueprint('channel_message', __name__)
 
@@ -66,14 +68,26 @@ def transfer_stake(hex_message):
     return _transfer_stake(hex_message)
 
 
+def get_move(hex_message, mover):
+    random_move = strategy.next_move(hex_message)
+    smart_move = strategy.minmax_strategy(hex_message, mover)
+
+    choice = random.random()
+    if choice > 0.6:
+        return random_move
+    return smart_move
+
+
 def play_nought_move(hex_message):
-    move = strategy.next_move(hex_message)
+    move = get_move(hex_message, False)
+
     noughts = coder.get_game_noughts(hex_message) + move
     return coder.update_noughts(hex_message, noughts)
 
 
 def play_cross_move(hex_message):
-    move = strategy.next_move(hex_message)
+    move = get_move(hex_message, True)
+
     crosses = coder.get_game_crosses(hex_message) + move
     return coder.update_crosses(hex_message, crosses)
 

@@ -150,11 +150,6 @@ def increment_state_turn_num(h_message):
     return _update_field(h_message, STATE_OFFSET, 1, int_to_field(turn_num))
 
 
-def increment_channel_state(h_message):
-    channel_state = get_channel_state(h_message) + 1
-    return _update_field(h_message, STATE_OFFSET, 0, int_to_field(channel_state))
-
-
 def update_channel_state(h_message, channel_state):
     return _update_field(h_message, STATE_OFFSET, 0, int_to_field(channel_state))
 

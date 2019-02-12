@@ -73,8 +73,7 @@ def get_move(hex_message, mover):
     smart_move = strategy.minmax_strategy(hex_message, mover)
 
     choice = random.random()
-    # if choice > 0.6:
-    if choice > 0.0:
+    if choice > 0.6:
         print("Playing random move")
         return random_move
     print("Playing minimax move")

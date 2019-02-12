@@ -96,12 +96,6 @@ def _minmax(noughts, crosses, crosses_moves, is_crosses, depth):
                 best_move = move
 
     if my_move:
-        if depth == 0 or depth == 1:
-            print("My move " + str(noughts) + " " + str(crosses) + " " + str(best_move) +
-                  " " + str(my_best_move_value) + " " + str(depth))
         return (my_best_move_value, best_move)
 
-    if depth == 0 or depth == 1:
-        print("Opponent move " + str(noughts) + " " + str(crosses) + " " + str(best_move) +
-              " " + str(opponent_best_move_value) + " " + str(depth))
     return (opponent_best_move_value, best_move)

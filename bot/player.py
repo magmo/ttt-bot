@@ -74,7 +74,9 @@ def get_move(hex_message, mover):
 
     choice = random.random()
     if choice > 0.6:
+        print("Playing random move")
         return random_move
+    print("Playing minimax move")
     return smart_move
 
 

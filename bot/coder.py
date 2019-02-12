@@ -150,8 +150,12 @@ def increment_state_turn_num(h_message):
     return _update_field(h_message, STATE_OFFSET, 1, int_to_field(turn_num))
 
 
-def incerement_channel_state(h_message):
+def increment_channel_state(h_message):
     channel_state = get_channel_state(h_message) + 1
+    return _update_field(h_message, STATE_OFFSET, 0, int_to_field(channel_state))
+
+
+def update_channel_state(h_message, channel_state):
     return _update_field(h_message, STATE_OFFSET, 0, int_to_field(channel_state))
 
 
@@ -215,7 +219,7 @@ def play_again_me_first(h_message):
 
 
 def conclude(h_message):
-    h_message = incerement_channel_state(h_message)
+    h_message = update_channel_state(h_message, 3)
     h_message = set_state_count(h_message, 0)
     return h_message[: CHARS_PER_BYTE * (GAME_OFFSET)]
 
